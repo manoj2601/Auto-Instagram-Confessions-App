@@ -27,7 +27,7 @@ public class loginActivity extends AppCompatActivity {
     public static final String EMAIL_KEY = "email_key";
     public static final String PASSWORD_KEY = "password_key";
     public static final String SESSION_KEY = "session_key";
-    public static final String url = "http://3.228.6.68/";
+    public static final String url = "http://44.193.207.241/";
 
     SharedPreferences sharedpreferences;
     String email, password, session;
@@ -87,7 +87,7 @@ public class loginActivity extends AppCompatActivity {
 
                                 // starting new activity.
                                 Intent i = new Intent(loginActivity.this, MainActivity.class);
-                                Toast.makeText(loginActivity.this, "Signed in SESSION ID : "+response, Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(loginActivity.this, "Signed in SESSION ID : "+response, Toast.LENGTH_SHORT).show();
                                 startActivity(i);
                                 finish();
                             }

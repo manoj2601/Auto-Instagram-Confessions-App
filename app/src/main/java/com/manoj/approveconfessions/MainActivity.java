@@ -37,19 +37,34 @@ public class MainActivity extends AppCompatActivity {
 
     // variable for shared preferences.
     SharedPreferences sharedpreferences;
-    String email, password, session;
+    String username, password, session;
 
     private void expireSession() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        ProgressBar loadingProgressBar = findViewById(R.id.loading);
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        String req = url+"/logout?session_id="+session;
+        StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                loadingProgressBar.setVisibility(View.GONE);
+                Toast.makeText(MainActivity.this, "Logged Out", Toast.LENGTH_SHORT).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, "Error while logging out", Toast.LENGTH_SHORT).show();
+            }
+        }
+        );
+        queue.add(sr);
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(EMAIL_KEY, null);
-        editor.putString(PASSWORD_KEY, null);
-        editor.putString(SESSION_KEY, null);
         editor.clear();
         editor.apply();
 
         // starting new activity.
         Intent i = new Intent(MainActivity.this, loginActivity.class);
-        Toast.makeText(MainActivity.this, "Session expired", Toast.LENGTH_SHORT).show();
+
         startActivity(i);
         finish();
     }
@@ -71,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         // getting data from shared prefs and
         // storing it in our string variable.
-        email = sharedpreferences.getString(EMAIL_KEY, null);
+        username = sharedpreferences.getString(EMAIL_KEY, null);
         password = sharedpreferences.getString(PASSWORD_KEY, null);
         session = sharedpreferences.getString(SESSION_KEY, null);
 
@@ -79,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         TextView fetchTV = findViewById(R.id.fetchTV);
         TextView entry = findViewById(R.id.entry);
         RequestQueue queue = Volley.newRequestQueue(this);
-        welcomeTV.setText("Welcome " + email);
+        welcomeTV.setText("Welcome " + username);
         Button logoutBtn = findViewById(R.id.idBtnLogout);
         Button fetchBtn = findViewById(R.id.fetch);
         Button fetchSkippedBtn = findViewById(R.id.fetchSkipped);
@@ -107,10 +122,22 @@ public class MainActivity extends AppCompatActivity {
         StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-//                loadingProgressBar.setVisibility(View.GONE);
+                loadingProgressBar.setVisibility(View.GONE);
                 if(response.equals("0"))
                 {
-                    expireSession();
+                    Toast.makeText(MainActivity.this, "Session expired", Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.clear();
+                    editor.apply();
+
+                    // starting new activity.
+                    Intent i = new Intent(MainActivity.this, loginActivity.class);
+
+                    startActivity(i);
+                    finish();
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "Session verified", Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
@@ -121,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
         }
         );
         queue.add(sr);
-
-
         fetchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -230,10 +255,10 @@ public class MainActivity extends AppCompatActivity {
                 String req = "";
                 if(wasSkipped[0])
                 {
-                    req = url+"/getEntrySkipped?id="+ id[0] +"&status=approve?session_id="+session;
+                    req = url+"/getEntrySkipped?id="+ id[0] +"&status=approve&session_id="+session;
                 }
                 else {
-                    req = url+"/getEntry?id="+ id[0] +"&status=approve?session_id="+session;
+                    req = url+"/getEntry?id="+ id[0] +"&status=approve&session_id="+session;
                 }
                 StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
                     @Override
@@ -270,10 +295,10 @@ public class MainActivity extends AppCompatActivity {
                 String req = "";
                 if(wasSkipped[0])
                 {
-                    req = url+"/getEntrySkipped?id="+ id[0] +"&status=decline?session_id="+session;
+                    req = url+"/getEntrySkipped?id="+ id[0] +"&status=decline&session_id="+session;
                 }
                 else {
-                    req = url+"/getEntry?id="+ id[0] +"&status=decline?session_id="+session;
+                    req = url+"/getEntry?id="+ id[0] +"&status=decline&session_id="+session;
                 }
                 StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
                     @Override
@@ -305,10 +330,10 @@ public class MainActivity extends AppCompatActivity {
                 String req = "";
                 if(wasSkipped[0])
                 {
-                    req = url+"/getEntrySkipped?id="+ id[0] +"&status=skip?session_id="+session;
+                    req = url+"/getEntrySkipped?id="+ id[0] +"&status=skip&session_id="+session;
                 }
                 else {
-                    req = url+"/getEntry?id="+ id[0] +"&status=skip?session_id="+session;
+                    req = url+"/getEntry?id="+ id[0] +"&status=skip&session_id="+session;
                 }
                 StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
                     @Override
@@ -335,7 +360,6 @@ public class MainActivity extends AppCompatActivity {
         logoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 expireSession();
             }
         });
@@ -346,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Toast.makeText(MainActivity.this, "Back Button Pressed, session expired", Toast.LENGTH_SHORT).show();
                 expireSession();
                 return true;
         }
