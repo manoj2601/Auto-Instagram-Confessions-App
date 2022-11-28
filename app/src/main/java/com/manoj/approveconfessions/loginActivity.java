@@ -27,10 +27,11 @@ public class loginActivity extends AppCompatActivity {
     public static final String EMAIL_KEY = "email_key";
     public static final String PASSWORD_KEY = "password_key";
     public static final String SESSION_KEY = "session_key";
-    public static final String url = "http://44.193.207.241/";
+    public static final String SERVER_IP_ADDRESS = "ip_address";
+//    public static String url = "http://44.193.207.241/";
 
     SharedPreferences sharedpreferences;
-    String email, password, session;
+    String email, password, session, serverIpAddress;
 
 
     @Override
@@ -41,6 +42,7 @@ public class loginActivity extends AppCompatActivity {
         // Initializing EditTexts and our Button
         EditText usernameEdt = findViewById(R.id.username);
         EditText passwordEdt = findViewById(R.id.password);
+        EditText ServerIpAddressEdt = findViewById(R.id.ServerIpAddress);
         Button loginBtn = findViewById(R.id.idBtnLogin);
         ProgressBar loadingProgressBar = findViewById(R.id.loading);
         // getting the data which is stored in shared preferences.
@@ -53,7 +55,8 @@ public class loginActivity extends AppCompatActivity {
         email = sharedpreferences.getString(EMAIL_KEY, null);
         password = sharedpreferences.getString(PASSWORD_KEY, null);
         session = sharedpreferences.getString(SESSION_KEY, null);
-
+        serverIpAddress = sharedpreferences.getString(SERVER_IP_ADDRESS, null);
+        ServerIpAddressEdt.setText(serverIpAddress);
         RequestQueue queue = Volley.newRequestQueue(this);
 
 
@@ -67,6 +70,8 @@ public class loginActivity extends AppCompatActivity {
                     Toast.makeText(loginActivity.this, "Please Enter Email and Password", Toast.LENGTH_SHORT).show();
                 } else {
                     loadingProgressBar.setVisibility(View.VISIBLE);
+                    String ip = ServerIpAddressEdt.getText().toString();
+                    String url = "http://"+ip+"/";
                     String req = url+"/login?username="+usernameEdt.getText().toString()+"&password="+passwordEdt.getText().toString();
                     StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
                         @Override
@@ -81,6 +86,7 @@ public class loginActivity extends AppCompatActivity {
                                 editor.putString(EMAIL_KEY, usernameEdt.getText().toString());
                                 editor.putString(PASSWORD_KEY, passwordEdt.getText().toString());
                                 editor.putString(SESSION_KEY, response);
+                                editor.putString(SERVER_IP_ADDRESS, ServerIpAddressEdt.getText().toString());
 
                                 // to save our data with key and value.
                                 editor.apply();

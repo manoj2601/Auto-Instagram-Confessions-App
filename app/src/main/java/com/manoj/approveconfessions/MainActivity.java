@@ -33,16 +33,18 @@ public class MainActivity extends AppCompatActivity {
     public static final String EMAIL_KEY = loginActivity.EMAIL_KEY;
     public static final String PASSWORD_KEY = loginActivity.PASSWORD_KEY;
     public static final String SESSION_KEY = loginActivity.SESSION_KEY;
-    public static final String url = loginActivity.url;
+    public static final String SERVER_IP_ADDRESS = loginActivity.SERVER_IP_ADDRESS;
+//    public static final String url = loginActivity.url;
 
     // variable for shared preferences.
     SharedPreferences sharedpreferences;
-    String username, password, session;
+    String username, password, session, serverIpAddress;
 
     private void expireSession() {
         RequestQueue queue = Volley.newRequestQueue(this);
         ProgressBar loadingProgressBar = findViewById(R.id.loading);
         loadingProgressBar.setVisibility(View.VISIBLE);
+        String url = "http://"+serverIpAddress+"/";
         String req = url+"/logout?session_id="+session;
         StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
             @Override
@@ -59,7 +61,10 @@ public class MainActivity extends AppCompatActivity {
         );
         queue.add(sr);
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.clear();
+//        editor.clear();
+        editor.remove(EMAIL_KEY);
+        editor.remove(PASSWORD_KEY);
+        editor.remove(SESSION_KEY);
         editor.apply();
 
         // starting new activity.
@@ -89,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         username = sharedpreferences.getString(EMAIL_KEY, null);
         password = sharedpreferences.getString(PASSWORD_KEY, null);
         session = sharedpreferences.getString(SESSION_KEY, null);
+        serverIpAddress = sharedpreferences.getString(SERVER_IP_ADDRESS, null);
 
         TextView welcomeTV = findViewById(R.id.idTVWelcome);
         TextView fetchTV = findViewById(R.id.fetchTV);
@@ -118,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
             expireSession();
         }
         loadingProgressBar.setVisibility(View.VISIBLE);
+        String url = "http://"+serverIpAddress+"/";
         String req = url+"/verify?session_id="+session;
         StringRequest sr = new StringRequest(Request.Method.POST, req, new Response.Listener<String>() {
             @Override
@@ -127,7 +134,10 @@ public class MainActivity extends AppCompatActivity {
                 {
                     Toast.makeText(MainActivity.this, "Session expired", Toast.LENGTH_SHORT).show();
                     SharedPreferences.Editor editor = sharedpreferences.edit();
-                    editor.clear();
+//                    editor.clear();
+                    editor.remove(EMAIL_KEY);
+                    editor.remove(PASSWORD_KEY);
+                    editor.remove(SESSION_KEY);
                     editor.apply();
 
                     // starting new activity.

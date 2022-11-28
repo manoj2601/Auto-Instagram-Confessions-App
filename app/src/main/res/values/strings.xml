@@ -4,4 +4,5 @@
     <string name="password">password</string>
     <string name="login">Login</string>
     <string name="fetchTV">Fetch New Entries</string>
+    <string name="ServerIpAddress">Server IP Address</string>
 </resources>
